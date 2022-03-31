@@ -39,6 +39,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/errorno.ErrorResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -68,6 +74,116 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/errorno.ErrorResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/streams/{streamName}": {
+            "get": {
+                "summary": "Get specific stream by streamName",
+                "operationId": "streamGet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stream name",
+                        "name": "streamName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Stream"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Append record to specific stream",
+                "operationId": "streamAppend",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Record"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Stream name",
+                        "name": "streamName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.RecordId"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete specific stream by streamName",
+                "operationId": "streamDelete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stream Name",
+                        "name": "streamName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -86,8 +202,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/errorno.ErrorResponse"
                         }
@@ -120,6 +236,74 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/errorno.ErrorResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/subscriptions/{subId}": {
+            "get": {
+                "summary": "Get specific subscription by subscription id",
+                "operationId": "subscriptionGet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription Id",
+                        "name": "subId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Subscription"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete specific subscription by subscription id",
+                "operationId": "subscriptionDelete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription Id",
+                        "name": "subId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -137,6 +321,42 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Record": {
+            "type": "object",
+            "required": [
+                "data",
+                "key",
+                "type"
+            ],
+            "properties": {
+                "data": {},
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Record Type:\n* RAW - []byte payload\n* HRECORD - JSON payload",
+                    "type": "string",
+                    "enum": [
+                        "RAW",
+                        "HRECORD"
+                    ]
+                }
+            }
+        },
+        "model.RecordId": {
+            "type": "object",
+            "properties": {
+                "batch_id": {
+                    "type": "integer"
+                },
+                "batch_index": {
+                    "type": "integer"
+                },
+                "shard_id": {
+                    "type": "integer"
                 }
             }
         },

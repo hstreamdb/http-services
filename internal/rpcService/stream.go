@@ -27,3 +27,33 @@ func (c *HStreamClient) ListStreams() ([]model.Stream, error) {
 	}
 	return res, nil
 }
+
+func (c *HStreamClient) DeleteStream(streamName string) error {
+	return c.client.DeleteStream(streamName)
+}
+
+func (c *HStreamClient) Append(streamName string, record model.Record) (rid model.RecordId, err error) {
+	producer := c.client.NewProducer(streamName)
+	var r hstream.HStreamRecord
+	switch record.Type {
+	case "RAW":
+		r = hstream.NewHStreamRawRecord(record.Key, []byte(record.Data.(string)))
+	case "HRECORD":
+		r = hstream.NewHStreamHRecord(record.Key, record.Data.(map[string]interface{}))
+	}
+
+	res, err := producer.Append(r).Ready()
+	if err != nil {
+		return rid, err
+	}
+
+	return recordIdFromHStream(res), nil
+}
+
+func recordIdFromHStream(rid *hstream.RecordId) model.RecordId {
+	return model.RecordId{
+		BatchId:    rid.BatchId,
+		BatchIndex: rid.BatchIndex,
+		ShardId:    rid.ShardId,
+	}
+}

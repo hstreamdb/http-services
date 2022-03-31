@@ -9,5 +9,6 @@ func RegisterRouter(r *gin.RouterGroup, s *Service) {
 	endpoint.GET("/", s.List)
 	endpoint.GET("/:streamName", s.Get)
 	endpoint.POST("/", s.Create)
+	endpoint.POST("/:streamName", s.Append)
 	endpoint.DELETE("/:streamName", s.Delete)
 }

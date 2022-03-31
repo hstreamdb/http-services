@@ -8,6 +8,34 @@ definitions:
       message:
         type: string
     type: object
+  model.Record:
+    properties:
+      data: {}
+      key:
+        type: string
+      type:
+        description: |-
+          Record Type:
+          * RAW - []byte payload
+          * HRECORD - JSON payload
+        enum:
+        - RAW
+        - HRECORD
+        type: string
+    required:
+    - data
+    - key
+    - type
+    type: object
+  model.RecordId:
+    properties:
+      batch_id:
+        type: integer
+      batch_index:
+        type: integer
+      shard_id:
+        type: integer
+    type: object
   model.Stream:
     properties:
       backlog_duration:
@@ -54,6 +82,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
       summary: List all streams in the cluster
     post:
       operationId: streamCreate
@@ -73,7 +105,80 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
       summary: Create a stream
+  /v1/streams/{streamName}:
+    delete:
+      operationId: streamDelete
+      parameters:
+      - description: Stream Name
+        in: path
+        name: streamName
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Delete specific stream by streamName
+    get:
+      operationId: streamGet
+      parameters:
+      - description: Stream name
+        in: path
+        name: streamName
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Stream'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Get specific stream by streamName
+    post:
+      operationId: streamAppend
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Record'
+      - description: Stream name
+        in: path
+        name: streamName
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RecordId'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Append record to specific stream
   /v1/subscriptions/:
     get:
       operationId: subscriptionList
@@ -84,8 +189,8 @@ paths:
             items:
               $ref: '#/definitions/model.Subscription'
             type: array
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/errorno.ErrorResponse'
       summary: List all subscriptions in the cluster
@@ -107,5 +212,50 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
       summary: Create a subscription
+  /v1/subscriptions/{subId}:
+    delete:
+      operationId: subscriptionDelete
+      parameters:
+      - description: Subscription Id
+        in: path
+        name: subId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Delete specific subscription by subscription id
+    get:
+      operationId: subscriptionGet
+      parameters:
+      - description: Subscription Id
+        in: path
+        name: subId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Subscription'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Get specific subscription by subscription id
 swagger: "2.0"
