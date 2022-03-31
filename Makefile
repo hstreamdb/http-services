@@ -1,5 +1,8 @@
 fmt:
 	gofmt -s -w -l `find . -name '*.go' -print`
 
-.PHONY: fmt
+swag:
+	$(GOPATH)/bin/swag init -g cmd/hstreamdb-server/main.go
+
+.PHONY: fmt, swag
 

@@ -5,7 +5,7 @@ import (
 )
 
 func RegisterRouter(r *gin.RouterGroup, s *Service) {
-	endpoint := r.Group("/stream")
+	endpoint := r.Group("/streams")
 	endpoint.GET("/", s.List)
 	endpoint.GET("/:streamName", s.Get)
 	endpoint.POST("/", s.Create)

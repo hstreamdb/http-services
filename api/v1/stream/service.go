@@ -1,9 +1,11 @@
 package stream
 
+import "C"
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/hstreamdb/http-server/pkg/errorno"
+	"net/http"
 )
 
 type StreamServices interface {
@@ -19,43 +21,44 @@ func NewStreamService(client StreamServices) *Service {
 	return &Service{client}
 }
 
-// Get godoc
-// @Summary Get stream
-// @Description Get stream by streamName
-// @Tags Stream
-// @Accept  json
-// @Produce  json
-// @Param streamName path string true "Stream name"
-// @Success 200 {object} rpcService.Stream
-// @Failure 400 {object} rpcService.HTTPError
-// @Failure 404 {object} rpcService.HTTPError
-// @Failure 500 {object} rpcService.HTTPError
-// @Router /streams/{streamName} [get]
 func (s *Service) Get(c *gin.Context) {
 	//name := c.Param("streamName")
 
 }
 
+// List godoc
+// @ID streamList
+// @Summary List all streams in the cluster
+// @Success 200 {object} []model.Stream
+// @Failure 400 {object} errorno.ErrorResponse
+// @Router /v1/streams/ [get]
 func (s *Service) List(c *gin.Context) {
 	streams, err := s.client.ListStreams()
 	if err != nil {
-		c.JSON(errorno.LIST_STREAMS_ERROR, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.LIST_STREAMS_ERROR, err))
 		return
 	}
-	c.JSON(errorno.SUCCESS, gin.H{"streams": streams})
+	c.JSON(http.StatusOK, gin.H{"streams": streams})
 }
 
+// Create godoc
+// @ID streamCreate
+// @Summary Create a stream
+// @Param request body model.Stream true "Request body"
+// @Success 200 {string} string "ok"
+// @Failure 400 {object} errorno.ErrorResponse
+// @Router /v1/streams/ [post]
 func (s *Service) Create(c *gin.Context) {
 	var stream model.Stream
 	if err := c.ShouldBindJSON(&stream); err != nil {
-		c.JSON(errorno.INVALID_PARAMS, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.INVALID_PARAMETER, err))
 		return
 	}
 	if err := s.client.CreateStream(stream); err != nil {
-		c.JSON(errorno.CREATE_STREAM_ERROR, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.CREATE_STREAM_ERROR, err))
 		return
 	}
-	c.JSON(errorno.SUCCESS, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"msg": "success",
 	})
 }

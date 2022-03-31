@@ -1,9 +1,9 @@
 package errorno
 
+type ErrorCode uint32
+
 const (
-	SUCCESS        = 200
-	ERROR          = 500
-	INVALID_PARAMS = 400
+	INVALID_PARAMETER ErrorCode = 1000
 
 	CREATE_STREAM_ERROR = 10001
 	LIST_STREAMS_ERROR  = 10002

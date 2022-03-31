@@ -30,6 +30,11 @@ func registerSignalHandler() context.Context {
 	return ctx
 }
 
+// @title HStreamDB-Server API
+// @version 0.1.0
+// @description http server for HStreamDB
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	conf := config.DefaultConfig()
 	ctx := registerSignalHandler()

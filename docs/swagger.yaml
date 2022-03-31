@@ -1,4 +1,111 @@
+definitions:
+  errorno.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      full_text:
+        type: string
+      message:
+        type: string
+    type: object
+  model.Stream:
+    properties:
+      backlog_duration:
+        type: integer
+      replication_factor:
+        type: integer
+      stream_name:
+        type: string
+    required:
+    - stream_name
+    type: object
+  model.Subscription:
+    properties:
+      ack_timeout_seconds:
+        type: integer
+      streamName:
+        type: string
+      subscription_id:
+        type: string
+    required:
+    - streamName
+    - subscription_id
+    type: object
 info:
   contact: {}
-paths: {}
+  description: http server for HStreamDB
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: HStreamDB-Server API
+  version: 0.1.0
+paths:
+  /v1/streams/:
+    get:
+      operationId: streamList
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Stream'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: List all streams in the cluster
+    post:
+      operationId: streamCreate
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Stream'
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Create a stream
+  /v1/subscriptions/:
+    get:
+      operationId: subscriptionList
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Subscription'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: List all subscriptions in the cluster
+    post:
+      operationId: subscriptionCreate
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Subscription'
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Create a subscription
 swagger: "2.0"

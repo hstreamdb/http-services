@@ -1,10 +1,8 @@
 package errorno
 
-var MsgFlags = map[uint16]string{
-	SUCCESS:        "ok",
-	ERROR:          "fail",
-	INVALID_PARAMS: "invalid params",
+import "github.com/hstreamdb/http-server/pkg/util"
 
+var MsgFlags = map[ErrorCode]string{
 	CREATE_STREAM_ERROR: "create stream error",
 	LIST_STREAMS_ERROR:  "list stream error",
 
@@ -13,11 +11,12 @@ var MsgFlags = map[uint16]string{
 }
 
 // GetMsg convert error code to error message
-func GetMsg(code uint16) string {
+func GetMsg(code ErrorCode) string {
 	msg, ok := MsgFlags[code]
 	if ok {
 		return msg
 	}
 
-	return MsgFlags[ERROR]
+	util.Logger().Fatal("error code not found")
+	return ""
 }

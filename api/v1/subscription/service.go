@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/hstreamdb/http-server/pkg/errorno"
+	"net/http"
 )
 
 type SubServices interface {
@@ -23,27 +24,40 @@ func (s *Service) Get(c *gin.Context) {
 
 }
 
+// List godoc
+// @ID subscriptionList
+// @Summary List all subscriptions in the cluster
+// @Success 200 {object} []model.Subscription
+// @Failure 400 {object} errorno.ErrorResponse
+// @Router /v1/subscriptions/ [get]
 func (s *Service) List(c *gin.Context) {
-	streams, err := s.client.ListSubscriptions()
+	subs, err := s.client.ListSubscriptions()
 	if err != nil {
-		c.JSON(errorno.LIST_SUBSCRIPTIONS_ERROR, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.LIST_SUBSCRIPTIONS_ERROR, err))
 		return
 	}
-	c.JSON(errorno.SUCCESS, gin.H{"streams": streams})
+	c.JSON(http.StatusOK, gin.H{"subscriptions": subs})
 }
 
+// Create godoc
+// @ID subscriptionCreate
+// @Summary Create a subscription
+// @Param request body model.Subscription true "Request body"
+// @Success 200 {string} string "ok"
+// @Failure 400 {object} errorno.ErrorResponse
+// @Router /v1/subscriptions/ [post]
 func (s *Service) Create(c *gin.Context) {
 	var sub model.Subscription
 	if err := c.ShouldBindJSON(&sub); err != nil {
-		c.JSON(errorno.INVALID_PARAMS, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.INVALID_PARAMETER, err))
 		return
 	}
 
 	if err := s.client.CreateSubscription(sub); err != nil {
-		c.JSON(errorno.CREATE_SUBSCRIPTION_ERROR, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.CREATE_SUBSCRIPTION_ERROR, err))
 		return
 	}
-	c.JSON(errorno.SUCCESS, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"msg": "success",
 	})
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hstreamdb/http-server/api/swagger"
 	"github.com/hstreamdb/http-server/api/v1/stream"
 	"github.com/hstreamdb/http-server/api/v1/subscription"
 )
@@ -17,6 +18,7 @@ func InitRouter(client ServiceClient) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	v1 := router.Group("/v1")
+	swagger.RegisterRouter(v1)
 
 	streamService := stream.NewStreamService(client)
 	subServices := subscription.NewSubService(client)
