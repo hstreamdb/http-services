@@ -1,0 +1,28 @@
+package model
+
+type Stream struct {
+	StreamName        string `json:"stream_name" binding:"required"`
+	ReplicationFactor uint32 `json:"replication_factor"`
+	BacklogDuration   uint32 `json:"backlog_duration"`
+}
+
+type Subscription struct {
+	SubscriptionId    string `json:"subscription_id" binding:"required"`
+	StreamName        string `json:"streamName" binding:"required"`
+	AckTimeoutSeconds int32  `json:"ack_timeout_seconds"`
+}
+
+type Record struct {
+	Key string `json:"key" binding:"required"`
+	// Record Type:
+	// * RAW - []byte payload
+	// * HRECORD - JSON payload
+	Type string      `json:"type" binding:"required" enums:"RAW,HRECORD"`
+	Data interface{} `json:"data" binding:"required"`
+}
+
+type RecordId struct {
+	BatchId    uint64 `json:"batch_id"`
+	BatchIndex uint32 `json:"batch_index"`
+	ShardId    uint64 `json:"shard_id"`
+}
