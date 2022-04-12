@@ -19,12 +19,11 @@ func (c *HStreamClient) ListStreams() ([]model.Stream, error) {
 		return nil, err
 	}
 	var res []model.Stream
-	for ; streams.Valid(); streams.Next() {
-		item := streams.Item()
+	for _, stream := range streams {
 		res = append(res, model.Stream{
-			StreamName:        item.GetStreamName(),
-			ReplicationFactor: item.GetReplicationFactor(),
-			BacklogDuration:   item.GetBacklogDuration(),
+			StreamName:        stream.StreamName,
+			ReplicationFactor: stream.ReplicationFactor,
+			BacklogDuration:   stream.BacklogDuration,
 		})
 	}
 	return res, nil

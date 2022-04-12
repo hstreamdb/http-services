@@ -8,8 +8,9 @@ type Stream struct {
 
 type Subscription struct {
 	SubscriptionId    string `json:"subscription_id" binding:"required"`
-	StreamName        string `json:"streamName" binding:"required"`
+	StreamName        string `json:"stream_name" binding:"required"`
 	AckTimeoutSeconds int32  `json:"ack_timeout_seconds"`
+	MaxUnackedRecords int32  `json:"max_unacked_records"`
 }
 
 type Record struct {
