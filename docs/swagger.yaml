@@ -51,13 +51,23 @@ definitions:
     properties:
       ack_timeout_seconds:
         type: integer
-      streamName:
+      max_unacked_records:
+        type: integer
+      stream_name:
         type: string
       subscription_id:
         type: string
     required:
-    - streamName
+    - stream_name
     - subscription_id
+    type: object
+  model.TableResult:
+    properties:
+      value:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
     type: object
 info:
   contact: {}
@@ -68,6 +78,46 @@ info:
   title: HStreamDB-Server API
   version: 0.1.0
 paths:
+  /v1/admin/stats:
+    get:
+      operationId: statsGet
+      parameters:
+      - description: Method
+        in: query
+        name: method
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: Interval collection
+        in: query
+        items:
+          type: string
+        name: interval
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TableResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Get cluster stats
+  /v1/admin/status:
+    get:
+      operationId: statusGet
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TableResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorno.ErrorResponse'
+      summary: Get server status of the cluster
   /v1/streams/:
     get:
       operationId: streamList

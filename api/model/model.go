@@ -27,3 +27,20 @@ type RecordId struct {
 	BatchIndex uint32 `json:"batch_index"`
 	ShardId    uint64 `json:"shard_id"`
 }
+
+type TableType struct {
+	Type    string `json:"type"`
+	Content struct {
+		Headers []string   `json:"headers"`
+		Rows    [][]string `json:"rows"`
+	}
+}
+
+type StatsRequestArg struct {
+	Method    string   `json:"method"`
+	Intervals []string `json:"intervals"`
+}
+
+type TableResult struct {
+	Value []map[string]interface{} `json:"value"`
+}

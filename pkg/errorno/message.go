@@ -13,6 +13,8 @@ var MsgFlags = map[ErrorCode]string{
 	LIST_SUBSCRIPTIONS_ERROR:  "list subscription error",
 	SUBSCRIPTION_NOT_EXIST:    "subscription not exist",
 	DELETE_SUBSCRIPTION_ERROR: "delete subscription error",
+
+	ADMIN_GET_STATUS_ERROR: "admin get status error",
 }
 
 // GetMsg convert error code to error message

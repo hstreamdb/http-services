@@ -20,6 +20,66 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/admin/stats": {
+            "get": {
+                "summary": "Get cluster stats",
+                "operationId": "statsGet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Method",
+                        "name": "method",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Interval collection",
+                        "name": "interval",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/admin/status": {
+            "get": {
+                "summary": "Get server status of the cluster",
+                "operationId": "statusGet",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/streams/": {
             "get": {
                 "summary": "List all streams in the cluster",
@@ -380,18 +440,33 @@ const docTemplate = `{
         "model.Subscription": {
             "type": "object",
             "required": [
-                "streamName",
+                "stream_name",
                 "subscription_id"
             ],
             "properties": {
                 "ack_timeout_seconds": {
                     "type": "integer"
                 },
-                "streamName": {
+                "max_unacked_records": {
+                    "type": "integer"
+                },
+                "stream_name": {
                     "type": "string"
                 },
                 "subscription_id": {
                     "type": "string"
+                }
+            }
+        },
+        "model.TableResult": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
                 }
             }
         }
