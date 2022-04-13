@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/hstreamdb/hstreamdb-go v0.1.1-0.20220401052422-cf559a0a6dbd
+	github.com/hstreamdb/hstreamdb-go v0.1.2-0.20220413022502-ea73e2ac15e9
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.1
 	github.com/swaggo/swag v1.8.1

@@ -9,17 +9,17 @@ func (c *HStreamClient) CreateSubscription(sub model.Subscription) error {
 }
 
 func (c *HStreamClient) ListSubscriptions() ([]model.Subscription, error) {
-	streams, err := c.client.ListSubscriptions()
+	subs, err := c.client.ListSubscriptions()
 	if err != nil {
 		return nil, err
 	}
 	var res []model.Subscription
-	for ; streams.Valid(); streams.Next() {
-		item := streams.Item()
+	for _, sub := range subs {
 		res = append(res, model.Subscription{
-			SubscriptionId:    item.GetSubscriptionId(),
-			StreamName:        item.GetStreamName(),
-			AckTimeoutSeconds: item.GetAckTimeoutSeconds(),
+			SubscriptionId:    sub.SubscriptionId,
+			StreamName:        sub.StreamName,
+			AckTimeoutSeconds: sub.AckTimeoutSeconds,
+			MaxUnackedRecords: sub.MaxUnackedRecords,
 		})
 	}
 	return res, nil

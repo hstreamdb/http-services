@@ -8,8 +8,9 @@ type Stream struct {
 
 type Subscription struct {
 	SubscriptionId    string `json:"subscription_id" binding:"required"`
-	StreamName        string `json:"streamName" binding:"required"`
+	StreamName        string `json:"stream_name" binding:"required"`
 	AckTimeoutSeconds int32  `json:"ack_timeout_seconds"`
+	MaxUnackedRecords int32  `json:"max_unacked_records"`
 }
 
 type Record struct {
@@ -25,4 +26,21 @@ type RecordId struct {
 	BatchId    uint64 `json:"batch_id"`
 	BatchIndex uint32 `json:"batch_index"`
 	ShardId    uint64 `json:"shard_id"`
+}
+
+type TableType struct {
+	Type    string `json:"type"`
+	Content struct {
+		Headers []string   `json:"headers"`
+		Rows    [][]string `json:"rows"`
+	}
+}
+
+type StatsRequestArg struct {
+	Method    string   `json:"method"`
+	Intervals []string `json:"intervals"`
+}
+
+type TableResult struct {
+	Value []map[string]interface{} `json:"value"`
 }
