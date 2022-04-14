@@ -85,5 +85,5 @@ func (s *Service) GetStats(c *gin.Context) {
 		}
 		stats.Value = append(stats.Value, mp)
 	}
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, stats)
 }

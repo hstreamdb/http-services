@@ -14,4 +14,4 @@ make run
 ### Generate Swagger
 
 - `make swag`
-- Then you can start the server and go to http://localhost:8080/swagger/index.html to see your Swagger UI.
+- Then you can start the server and go to http://localhost:8080/v1/swagger/index.html to see your Swagger UI.
