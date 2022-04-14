@@ -1,6 +1,7 @@
 package httpClient
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"io/ioutil"
@@ -35,21 +36,27 @@ func (c *Client) Close() {
 	c.Client.CloseIdleConnections()
 }
 
-func (c *Client) Send(req *http.Request) ([]byte, int, error) {
+func (c *Client) Send(req *http.Request) ([]byte, error) {
 	resp, err := c.Do(req)
 	if err != nil {
-		return nil, -1, errors.Wrapf(err, "failed to send request to %s\n", req.URL.String())
+		return nil, errors.Wrapf(err, "failed to send request to %s\n", req.URL.String())
 	}
 	defer resp.Body.Close()
 
 	code := resp.StatusCode
+	if !(code >= 200 && code < 300) {
+		response, _ := ioutil.ReadAll(resp.Body)
+		var body map[string]interface{}
+		_ = json.Unmarshal(response, &body)
+		return nil, errors.Errorf("abnormal response, status: %s, body: %+v\n", resp.Status, body)
+	}
 
 	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, code, errors.Wrapf(err, "failed to read response body from %s\n", req.URL.String())
+		return nil, errors.Wrapf(err, "failed to read response body from %s\n", req.URL.String())
 	}
 
-	return response, code, nil
+	return response, nil
 }
 
 func (c *Client) verb(verb string) *Request {

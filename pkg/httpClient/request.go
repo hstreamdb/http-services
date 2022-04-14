@@ -12,7 +12,7 @@ import (
 )
 
 type Request struct {
-	baseUrl *url.URL
+	client *Client
 
 	verb    string
 	path    string
@@ -24,8 +24,8 @@ type Request struct {
 
 func newRequest(client *Client, verb string) *Request {
 	return &Request{
-		baseUrl: client.baseUrl,
-		verb:    verb,
+		client: client,
+		verb:   verb,
 	}
 }
 
@@ -37,7 +37,7 @@ func (r *Request) SetResource(name ...string) *Request {
 
 // SetURL overwrites existing path and parameters with the given url.
 func (r *Request) SetURL(url string) *Request {
-	r.baseUrl = nil
+	r.client.baseUrl = nil
 	r.path = url
 	return r
 }
@@ -62,6 +62,13 @@ func (r *Request) Param(paramName, value string) *Request {
 	return r
 }
 
+func (r *Request) Params(paramName string, values []string) *Request {
+	for _, val := range values {
+		r.Param(paramName, val)
+	}
+	return r
+}
+
 func (r *Request) Body(body []byte) *Request {
 	r.body = bytes.NewBuffer(body)
 	return r
@@ -73,8 +80,8 @@ func (r *Request) URL() (string, error) {
 		err   error
 	)
 
-	if r.baseUrl != nil {
-		final = r.baseUrl
+	if r.client.baseUrl != nil {
+		final = r.client.baseUrl
 		final.Path = path.Join(final.Path, r.path)
 	} else {
 		final, err = url.Parse(r.path)
@@ -105,4 +112,12 @@ func (r *Request) BuildRequest(ctx context.Context) (*http.Request, error) {
 	req = req.WithContext(ctx)
 	req.Header = r.headers
 	return req, nil
+}
+
+func (r *Request) Send(ctx context.Context) ([]byte, error) {
+	req, err := r.BuildRequest(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.client.Send(req)
 }
