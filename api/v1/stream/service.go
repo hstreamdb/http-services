@@ -66,7 +66,7 @@ func (s *Service) List(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorno.NewErrorResponse(errorno.LIST_STREAMS_ERROR, err))
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"streams": streams})
+	c.JSON(http.StatusOK, streams)
 }
 
 // Create godoc
