@@ -8,6 +8,11 @@ import (
 )
 
 func printTableResult(res *model.TableResult) {
+	if len(res.Value) == 0 {
+		fmt.Println("empty")
+		return
+	}
+
 	headers := make([]string, 0, len(res.Value[0]))
 	for key := range res.Value[0] {
 		headers = append(headers, key)
