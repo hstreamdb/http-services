@@ -89,6 +89,8 @@ github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORR
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hstreamdb/hstreamdb-go v0.1.2-0.20220413022502-ea73e2ac15e9 h1:DrGie3bpFcOJsBJPEXx7p3oLnmWNGSY2U+5URG87dRs=
 github.com/hstreamdb/hstreamdb-go v0.1.2-0.20220413022502-ea73e2ac15e9/go.mod h1:ru8I0/qqNRdUfAkUGBwCNiziiPAwnv7nMveiY0Bv+o4=
+github.com/hstreamdb/hstreamdb-go v0.1.2-0.20220415023618-671ec2fe196e h1:B84QHX2pZECSiKYuBNHa2tpvOlrbUanxgYYkL5wrS5g=
+github.com/hstreamdb/hstreamdb-go v0.1.2-0.20220415023618-671ec2fe196e/go.mod h1:ru8I0/qqNRdUfAkUGBwCNiziiPAwnv7nMveiY0Bv+o4=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=

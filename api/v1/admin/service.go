@@ -8,8 +8,8 @@ import (
 )
 
 type AdminServices interface {
-	GetStatus() (model.TableType, error)
-	GetStats(string, []string) (model.TableType, error)
+	GetStatus() (*model.TableType, error)
+	GetStats(string, []string) (*model.TableType, error)
 }
 
 type Service struct {
@@ -34,13 +34,13 @@ func (s *Service) GetStatus(c *gin.Context) {
 	}
 
 	status := model.TableResult{
-		Value: make([]map[string]interface{}, 0, len(resp.Content.Rows)),
+		Value: make([]map[string]string, 0, len(resp.Rows)),
 	}
 
-	for _, row := range resp.Content.Rows {
-		mp := make(map[string]interface{}, len(row))
+	for _, row := range resp.Rows {
+		mp := make(map[string]string, len(row))
 		for idx, val := range row {
-			mp[resp.Content.Headers[idx]] = val
+			mp[resp.Headers[idx]] = val
 		}
 		status.Value = append(status.Value, mp)
 	}
@@ -75,13 +75,13 @@ func (s *Service) GetStats(c *gin.Context) {
 	//resp, err := s.client.GetStats(reqArg.Method, reqArg.Intervals)
 
 	stats := model.TableResult{
-		Value: make([]map[string]interface{}, 0, len(resp.Content.Rows)),
+		Value: make([]map[string]string, 0, len(resp.Rows)),
 	}
 
-	for _, row := range resp.Content.Rows {
-		mp := make(map[string]interface{}, len(row))
+	for _, row := range resp.Rows {
+		mp := make(map[string]string, len(row))
 		for idx, val := range row {
-			mp[resp.Content.Headers[idx]] = val
+			mp[resp.Headers[idx]] = val
 		}
 		stats.Value = append(stats.Value, mp)
 	}

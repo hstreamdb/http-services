@@ -13,14 +13,14 @@ swag:
 server:
 	$(GO_BUILD) -o bin/http-server $(PACKAGE)/cmd/http-server
 
-adminCli:
-	$(GO_BUILD) -o bin/admin-cli $(PACKAGE)/cmd/admin-client
+adminCtl:
+	$(GO_BUILD) -o bin/adminCtl $(PACKAGE)/cmd/admin-client
 
 runServer:
 	bin/http-server
 
 runAdmin:
-	bin/admin-cli
+	bin/adminCtl
 
-.PHONY: fmt, swag, server, adminCli, runServer, runAdmin
+.PHONY: fmt, swag, server, adminCtl, runServer, runAdmin
 

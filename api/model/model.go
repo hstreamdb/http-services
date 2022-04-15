@@ -29,11 +29,8 @@ type RecordId struct {
 }
 
 type TableType struct {
-	Type    string `json:"type"`
-	Content struct {
-		Headers []string   `json:"headers"`
-		Rows    [][]string `json:"rows"`
-	}
+	Headers []string   `json:"headers"`
+	Rows    [][]string `json:"rows"`
 }
 
 type StatsRequestArg struct {
