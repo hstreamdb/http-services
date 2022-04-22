@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -43,6 +44,12 @@ func getStats(cmd *cobra.Command, args []string) error {
 	if err = json.Unmarshal(resp, &res); err != nil {
 		return errors.WithMessage(err, "failed to unmarshal response")
 	}
-	printTableResult(&res)
+
+	headers := make([]string, 0, len(intervals)+1)
+	headers = append(headers, "stream_name")
+	for _, interval := range intervals {
+		headers = append(headers, fmt.Sprintf("%s_%s", method, interval))
+	}
+	printTableWithHeader(&res, headers)
 	return nil
 }
