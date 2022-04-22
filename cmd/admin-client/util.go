@@ -17,6 +17,10 @@ func printTableResult(res *model.TableResult) {
 	for key := range res.Value[0] {
 		headers = append(headers, key)
 	}
+	printTableWithHeader(res, headers)
+}
+
+func printTableWithHeader(res *model.TableResult, headers []string) {
 	datas := make([][]string, 0, len(headers))
 	for _, value := range res.Value {
 		data := make([]string, 0, len(value))

@@ -10,7 +10,7 @@ import (
 
 const (
 	getStatusCmd = "server status"
-	getStatsCmd  = "server stats %s%s"
+	getStatsCmd  = "server stats stream %s%s"
 )
 
 func (c *HStreamClient) GetStatus() (*model.TableType, error) {
