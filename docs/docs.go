@@ -27,6 +27,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Category",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Metrics",
                         "name": "metrics",
                         "in": "query",
@@ -40,8 +47,7 @@ const docTemplate = `{
                         "collectionFormat": "multi",
                         "description": "Interval collection",
                         "name": "interval",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -461,6 +467,12 @@ const docTemplate = `{
         "model.TableResult": {
             "type": "object",
             "properties": {
+                "headers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "value": {
                     "type": "array",
                     "items": {
