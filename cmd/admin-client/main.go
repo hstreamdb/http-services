@@ -21,7 +21,7 @@ func initFlags(rootCmd *cobra.Command) {
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "adminctl",
-		Short: "adminctl is a command line tool for administering the HStreamDB cluster",
+		Short: "adminCtl is a command line tool for administering the HStreamDB cluster",
 	}
 	initFlags(rootCmd)
 	rootCmd.AddCommand(
