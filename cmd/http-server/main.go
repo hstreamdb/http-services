@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"github.com/gin-gonic/gin"
 	"github.com/hstreamdb/http-server/api"
 	"github.com/hstreamdb/http-server/config"
 	"github.com/hstreamdb/http-server/internal/rpcService"
@@ -14,21 +16,12 @@ import (
 	"syscall"
 )
 
-func registerSignalHandler() context.Context {
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		sigChan := make(chan os.Signal, 1)
-		signal.Notify(sigChan,
-			syscall.SIGHUP,
-			syscall.SIGINT,
-			syscall.SIGTERM,
-			syscall.SIGQUIT)
-		sig := <-sigChan
-		util.Logger().Info("signal received", zap.String("signal", sig.String()))
-		cancel()
-	}()
-	return ctx
-}
+var (
+	address     = flag.String("address", "localhost:8080", "server's listening address.")
+	servicesUrl = flag.String("services-url", "localhost:6580", "hstreamdb services servicesUrl, split by comma.")
+	logLevel    = flag.String("log-level", "log", "log level, support debug, info, warn, error, fatal, panic")
+	debugMode   = flag.Bool("debug-mode", false, "use debug mode")
+)
 
 // @title HStreamDB-Server API
 // @version 0.1.0
@@ -36,7 +29,8 @@ func registerSignalHandler() context.Context {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	conf := config.DefaultConfig()
+	flag.Parse()
+	conf := config.NewConfig(*servicesUrl, *logLevel)
 	ctx := registerSignalHandler()
 
 	client, err := rpcService.NewHStreamClient(conf.ServerUrl)
@@ -45,9 +39,13 @@ func main() {
 	}
 	defer client.Close()
 
+	if !*debugMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := api.InitRouter(client)
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    *address,
 		Handler: router,
 	}
 	util.Logger().Info("Start http server", zap.String("addr", server.Addr))
@@ -66,4 +64,20 @@ func main() {
 		util.Logger().Error("Server shutdown error", zap.Error(err))
 	}
 	wg.Wait()
+}
+
+func registerSignalHandler() context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan,
+			syscall.SIGHUP,
+			syscall.SIGINT,
+			syscall.SIGTERM,
+			syscall.SIGQUIT)
+		sig := <-sigChan
+		util.Logger().Info("signal received", zap.String("signal", sig.String()))
+		cancel()
+	}()
+	return ctx
 }

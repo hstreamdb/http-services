@@ -14,7 +14,7 @@ type GlobalFlags struct {
 var globalFlags = GlobalFlags{}
 
 func initFlags(rootCmd *cobra.Command) {
-	rootCmd.PersistentFlags().StringVarP(&globalFlags.Address, "address", "e", "http://localhost:8080", "address of the HStreamDB server")
+	rootCmd.PersistentFlags().StringVarP(&globalFlags.Address, "address", "a", "http://localhost:8080", "address of the http server")
 	rootCmd.PersistentFlags().StringVarP(&globalFlags.PrefixPath, "prefix", "p", "v1", "prefix path of the admin request URL")
 }
 

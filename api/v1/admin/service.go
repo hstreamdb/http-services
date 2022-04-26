@@ -47,32 +47,22 @@ func (s *Service) GetStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// // @Param request body model.StatsRequestArg true "Request body"
-
 // GetStats godoc
 // @ID statsGet
 // @Summary Get cluster stats
-// @Param method query string true "Method"
+// @Param metrics query string true "Metrics"
 // @Param interval query []string true "Interval collection" collectionFormat(multi)
 // @Success 200 {object} model.TableResult
 // @Failure 500 {object} errorno.ErrorResponse
 // @Router /v1/admin/stats [get]
 func (s *Service) GetStats(c *gin.Context) {
-	method := c.Query("method")
+	metrics := c.Query("metrics")
 	interval := c.QueryArray("interval")
-	resp, err := s.client.GetStats(method, interval)
+	resp, err := s.client.GetStats(metrics, interval)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorno.NewErrorResponse(errorno.ADMIN_GET_STATUS_ERROR, err))
 		return
 	}
-
-	//var reqArg model.StatsRequestArg
-	//if err := c.ShouldBindJSON(&reqArg); err != nil {
-	//	c.AbortWithStatusJSON(http.StatusBadRequest, errorno.NewErrorResponse(errorno.INVALID_PARAMETER, err))
-	//	return
-	//}
-	//
-	//resp, err := s.client.GetStats(reqArg.Method, reqArg.Intervals)
 
 	stats := model.TableResult{
 		Value: make([]map[string]string, 0, len(resp.Rows)),

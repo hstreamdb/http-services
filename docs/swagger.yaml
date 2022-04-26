@@ -65,7 +65,8 @@ definitions:
     properties:
       value:
         items:
-          additionalProperties: true
+          additionalProperties:
+            type: string
           type: object
         type: array
     type: object
@@ -82,9 +83,9 @@ paths:
     get:
       operationId: statsGet
       parameters:
-      - description: Method
+      - description: Metrics
         in: query
-        name: method
+        name: metrics
         required: true
         type: string
       - collectionFormat: multi
