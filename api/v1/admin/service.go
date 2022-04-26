@@ -34,7 +34,8 @@ func (s *Service) GetStatus(c *gin.Context) {
 	}
 
 	status := model.TableResult{
-		Value: make([]map[string]string, 0, len(resp.Rows)),
+		Headers: resp.Headers,
+		Value:   make([]map[string]string, 0, len(resp.Rows)),
 	}
 
 	for _, row := range resp.Rows {
