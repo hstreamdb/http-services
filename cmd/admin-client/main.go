@@ -8,14 +8,14 @@ import (
 
 type GlobalFlags struct {
 	Address    string
-	PrefixPath string
+	ApiVersion string
 }
 
 var globalFlags = GlobalFlags{}
 
 func initFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().StringVarP(&globalFlags.Address, "address", "a", "http://localhost:8080", "address of the http server")
-	rootCmd.PersistentFlags().StringVarP(&globalFlags.PrefixPath, "prefix", "p", "v1", "prefix path of the admin request URL")
+	rootCmd.PersistentFlags().StringVarP(&globalFlags.ApiVersion, "version", "v", "v1", "version of the admin request api")
 }
 
 func main() {
