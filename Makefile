@@ -16,11 +16,5 @@ server:
 adminCtl:
 	$(GO_BUILD) -o bin/adminCtl $(PACKAGE)/cmd/admin-client
 
-runServer:
-	bin/http-server
-
-runAdmin:
-	bin/adminCtl
-
-.PHONY: fmt, swag, server, adminCtl, runServer, runAdmin
+.PHONY: fmt, swag, server, adminCtl
 

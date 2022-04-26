@@ -7,9 +7,25 @@ type Config struct {
 	LogLevel  util.LogLevel
 }
 
-func DefaultConfig() *Config {
+func NewConfig(serverUrl string, logLevel string) *Config {
+	var level util.LogLevel
+	switch logLevel {
+	case "debug":
+		level = util.DEBUG
+	case "info":
+		level = util.INFO
+	case "warn":
+		level = util.WARNING
+	case "error":
+		level = util.ERROR
+	case "fatal":
+		level = util.FATAL
+	case "panic":
+		level = util.PANIC
+	}
+
 	return &Config{
-		ServerUrl: "localhost:6580",
-		LogLevel:  util.DEBUG,
+		ServerUrl: serverUrl,
+		LogLevel:  level,
 	}
 }

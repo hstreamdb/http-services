@@ -17,9 +17,9 @@ func (c *HStreamClient) GetStatus() (*model.TableType, error) {
 	return c.sendAdminRequest(getStatusCmd)
 }
 
-func (c *HStreamClient) GetStats(method string, intervals []string) (*model.TableType, error) {
+func (c *HStreamClient) GetStats(metrics string, intervals []string) (*model.TableType, error) {
 	args := strings.Join(append([]string{""}, intervals...), " -i ")
-	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, method, args))
+	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, metrics, args))
 }
 
 // sendAdminRequest sends an admin command to the server and returns a table format response

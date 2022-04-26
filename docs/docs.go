@@ -27,8 +27,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Method",
-                        "name": "method",
+                        "description": "Metrics",
+                        "name": "metrics",
                         "in": "query",
                         "required": true
                     },
@@ -465,7 +465,9 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "additionalProperties": true
+                        "additionalProperties": {
+                            "type": "string"
+                        }
                     }
                 }
             }
