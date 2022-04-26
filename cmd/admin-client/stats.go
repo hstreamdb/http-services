@@ -34,7 +34,7 @@ func getStats(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.WithMessage(err, "failed to create http client")
 	}
-	resp, err := cli.Get().SetResource("admin/stats").
+	resp, err := cli.Get().SetResource("cluster/stats").
 		Param("category", category).
 		Param("metrics", metrics).
 		Params("interval", intervals).

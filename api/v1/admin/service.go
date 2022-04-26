@@ -25,7 +25,7 @@ func NewAdminService(client AdminServices) *Service {
 // @Summary Get server status of the cluster
 // @Success 200 {object} model.TableResult
 // @Failure 500 {object} errorno.ErrorResponse
-// @Router /v1/admin/status [get]
+// @Router /v1/cluster/status [get]
 func (s *Service) GetStatus(c *gin.Context) {
 	resp, err := s.client.GetStatus()
 	if err != nil {
@@ -34,7 +34,8 @@ func (s *Service) GetStatus(c *gin.Context) {
 	}
 
 	status := model.TableResult{
-		Value: make([]map[string]string, 0, len(resp.Rows)),
+		Headers: resp.Headers,
+		Value:   make([]map[string]string, 0, len(resp.Rows)),
 	}
 
 	for _, row := range resp.Rows {
@@ -55,7 +56,7 @@ func (s *Service) GetStatus(c *gin.Context) {
 // @Param interval query []string false "Interval collection" collectionFormat(multi)
 // @Success 200 {object} model.TableResult
 // @Failure 500 {object} errorno.ErrorResponse
-// @Router /v1/admin/stats [get]
+// @Router /v1/cluster/stats [get]
 func (s *Service) GetStats(c *gin.Context) {
 	category := c.Query("category")
 	metrics := c.Query("metrics")

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -52,6 +53,7 @@ func createSubscription(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.WithMessage(err, "failed to send request")
 	}
+	fmt.Println("OK")
 	return nil
 }
 

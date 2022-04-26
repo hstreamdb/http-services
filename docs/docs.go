@@ -20,7 +20,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/admin/stats": {
+        "/v1/cluster/stats": {
             "get": {
                 "summary": "Get cluster stats",
                 "operationId": "statsGet",
@@ -66,7 +66,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/admin/status": {
+        "/v1/cluster/status": {
             "get": {
                 "summary": "Get server status of the cluster",
                 "operationId": "statusGet",

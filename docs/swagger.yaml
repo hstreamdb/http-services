@@ -83,7 +83,7 @@ info:
   title: HStreamDB-Server API
   version: 0.1.0
 paths:
-  /v1/admin/stats:
+  /v1/cluster/stats:
     get:
       operationId: statsGet
       parameters:
@@ -114,7 +114,7 @@ paths:
           schema:
             $ref: '#/definitions/errorno.ErrorResponse'
       summary: Get cluster stats
-  /v1/admin/status:
+  /v1/cluster/status:
     get:
       operationId: statusGet
       responses:

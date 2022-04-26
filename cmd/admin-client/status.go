@@ -22,7 +22,7 @@ func getStatus(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.WithMessage(err, "failed to create http client")
 	}
-	resp, err := cli.Get().SetResource("admin/status").Send(context.Background())
+	resp, err := cli.Get().SetResource("cluster/status").Send(context.Background())
 	if err != nil {
 		return errors.WithMessage(err, "failed to send request")
 	}
