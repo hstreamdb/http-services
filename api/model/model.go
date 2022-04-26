@@ -39,5 +39,6 @@ type StatsRequestArg struct {
 }
 
 type TableResult struct {
-	Value []map[string]string `json:"value"`
+	Headers []string            `json:"headers"`
+	Value   []map[string]string `json:"value"`
 }

@@ -9,7 +9,7 @@ import (
 
 type AdminServices interface {
 	GetStatus() (*model.TableType, error)
-	GetStats(string, []string) (*model.TableType, error)
+	GetStats(string, string, []string) (*model.TableType, error)
 }
 
 type Service struct {
@@ -50,22 +50,25 @@ func (s *Service) GetStatus(c *gin.Context) {
 // GetStats godoc
 // @ID statsGet
 // @Summary Get cluster stats
+// @Param category query string true "Category"
 // @Param metrics query string true "Metrics"
-// @Param interval query []string true "Interval collection" collectionFormat(multi)
+// @Param interval query []string false "Interval collection" collectionFormat(multi)
 // @Success 200 {object} model.TableResult
 // @Failure 500 {object} errorno.ErrorResponse
 // @Router /v1/admin/stats [get]
 func (s *Service) GetStats(c *gin.Context) {
+	category := c.Query("category")
 	metrics := c.Query("metrics")
 	interval := c.QueryArray("interval")
-	resp, err := s.client.GetStats(metrics, interval)
+	resp, err := s.client.GetStats(category, metrics, interval)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorno.NewErrorResponse(errorno.ADMIN_GET_STATUS_ERROR, err))
 		return
 	}
 
 	stats := model.TableResult{
-		Value: make([]map[string]string, 0, len(resp.Rows)),
+		Headers: resp.Headers,
+		Value:   make([]map[string]string, 0, len(resp.Rows)),
 	}
 
 	for _, row := range resp.Rows {

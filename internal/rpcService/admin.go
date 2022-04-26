@@ -10,16 +10,16 @@ import (
 
 const (
 	getStatusCmd = "server status"
-	getStatsCmd  = "server stats stream %s%s"
+	getStatsCmd  = "server stats %s %s%s"
 )
 
 func (c *HStreamClient) GetStatus() (*model.TableType, error) {
 	return c.sendAdminRequest(getStatusCmd)
 }
 
-func (c *HStreamClient) GetStats(metrics string, intervals []string) (*model.TableType, error) {
+func (c *HStreamClient) GetStats(category string, metrics string, intervals []string) (*model.TableType, error) {
 	args := strings.Join(append([]string{""}, intervals...), " -i ")
-	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, metrics, args))
+	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, category, metrics, args))
 }
 
 // sendAdminRequest sends an admin command to the server and returns a table format response

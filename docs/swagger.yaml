@@ -63,6 +63,10 @@ definitions:
     type: object
   model.TableResult:
     properties:
+      headers:
+        items:
+          type: string
+        type: array
       value:
         items:
           additionalProperties:
@@ -83,6 +87,11 @@ paths:
     get:
       operationId: statsGet
       parameters:
+      - description: Category
+        in: query
+        name: category
+        required: true
+        type: string
       - description: Metrics
         in: query
         name: metrics
@@ -94,7 +103,6 @@ paths:
         items:
           type: string
         name: interval
-        required: true
         type: array
       responses:
         "200":
