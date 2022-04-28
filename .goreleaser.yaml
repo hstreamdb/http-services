@@ -16,6 +16,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
@@ -31,6 +32,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
@@ -41,6 +43,9 @@ builds:
 archives:
   - format: tar.gz
     name_template: "{{ .ProjectName }}-{{ .Version  }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
     files:
       - none*
 
