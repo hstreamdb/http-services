@@ -10,8 +10,16 @@ import (
 	"strconv"
 )
 
+type StatsServices interface {
+	GetServerInfo() ([]string, error)
+}
+
 type Service struct {
-	client *hstream.HStreamClient
+	client StatsServices
+}
+
+func NewStatsServices(s StatsServices) *Service {
+	return &Service{s}
 }
 
 func (s *Service) GetAppends(c *gin.Context) {
