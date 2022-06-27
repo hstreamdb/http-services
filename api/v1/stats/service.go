@@ -67,31 +67,25 @@ func getFromCluster(s *Service, cmd string) ([]model.TableResult, error) {
 	allStatsRaw := []model.TableResult{}
 
 	for _, addr := range info {
-		err := func() error {
-			respTable, err := s.client.GetStatsFromServer(addr, cmd)
-			if err != nil {
-				return fmt.Errorf("AdminRequest error with %v: %v", cmd, err)
-			}
-
-			stats := model.TableResult{
-				Headers: respTable.Headers,
-				Value:   make([]map[string]string, 0, len(respTable.Rows)),
-			}
-
-			for _, row := range respTable.Rows {
-				mp := make(map[string]string, len(row))
-				for idx, val := range row {
-					mp[respTable.Headers[idx]] = val
-				}
-				stats.Value = append(stats.Value, mp)
-			}
-
-			allStatsRaw = append(allStatsRaw, stats)
-			return nil
-		}()
+		respTable, err := s.client.GetStatsFromServer(addr, cmd)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("AdminRequest error with %v: %v", cmd, err)
 		}
+
+		stats := model.TableResult{
+			Headers: respTable.Headers,
+			Value:   make([]map[string]string, 0, len(respTable.Rows)),
+		}
+
+		for _, row := range respTable.Rows {
+			mp := make(map[string]string, len(row))
+			for idx, val := range row {
+				mp[respTable.Headers[idx]] = val
+			}
+			stats.Value = append(stats.Value, mp)
+		}
+
+		allStatsRaw = append(allStatsRaw, stats)
 	}
 
 	return allStatsRaw, nil
