@@ -48,11 +48,11 @@ func (s *Service) GetAppendFailed(c *gin.Context) {
 }
 
 func (s *Service) GetServerAppendRequestLatency(c *gin.Context) {
-	aggAvg(s, c, "server stats server_histogram append_request_latency")
+	aggSum(s, c, "server stats server_histogram append_request_latency")
 }
 
 func (s *Service) GetServerAppendLatency(c *gin.Context) {
-	aggAvg(s, c, "server stats server_histogram append_latency")
+	aggSum(s, c, "server stats server_histogram append_latency")
 }
 
 func adminError(err error) errorno.ErrorResponse {
@@ -163,7 +163,7 @@ func aggAppendSum(s *Service, c *gin.Context, cmd string) {
 	}
 }
 
-func aggAvg(s *Service, c *gin.Context, cmd string) {
+func aggSum(s *Service, c *gin.Context, cmd string) {
 	allStatsRaw, err := getFromCluster(s, cmd)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(err))
@@ -172,25 +172,30 @@ func aggAvg(s *Service, c *gin.Context, cmd string) {
 
 	if len(allStatsRaw) != 0 || len(allStatsRaw[0].Value) != 1 {
 		headerLen := len(allStatsRaw[0].Headers)
-		acc := make([]float64, headerLen)
+		acc := make([]int, headerLen)
 		for _, stats := range allStatsRaw {
 			for _, val := range stats.Value {
 				for i, k := range stats.Headers {
-					val, err := strconv.ParseFloat(val[k], 64)
+					val, err := strconv.ParseInt(val[k], 10, 32)
 					if err != nil {
 						c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("%v", err)))
 						return
 					}
-					acc[i] += val
+					acc[i] += int(val)
 				}
 			}
 		}
-		l := len(allStatsRaw)
-		for i := range acc {
-			acc[i] /= float64(l)
-		}
 
-		c.JSON(http.StatusOK, nil)
+		headers := allStatsRaw[0].Headers
+		value := map[string]string{}
+		for i, header := range headers {
+			value[header] = fmt.Sprintf("%d", acc[i])
+		}
+		values := []map[string]string{value}
+		tab := model.TableResult{Headers: headers, Value: values}
+
+		c.JSON(http.StatusOK, tab)
+		return
 
 	} else {
 		var err errorno.ErrorResponse
