@@ -65,7 +65,7 @@ func getFromCluster(s *Service, cmd string) ([]model.TableResult, error) {
 		return nil, fmt.Errorf("GetServerInfo error: %v", err)
 	}
 
-	allStatsRaw := make([]model.TableResult, 0)
+	allStatsRaw := []model.TableResult{}
 
 	for _, x := range info {
 		err := func() error {
@@ -125,14 +125,23 @@ func aggAppendSum(s *Service, c *gin.Context, cmd string) {
 		return
 	}
 
-	if len(allStatsRaw) != 0 {
+	if len(allStatsRaw) == 0 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
+		return
+	} else {
 		headers := allStatsRaw[0].Headers
 
 		allStats := model.TableResult{
 			Headers: headers,
-			Value:   make([]map[string]string, 0),
+			Value:   []map[string]string{},
 		}
 
+		// The `allStatsRaw` contains stats tables that got from the cluster per server, which each is of the form:
+		// | main_key | type_0 stats | type_1 stats | ...
+		// If the main_key already contains in the container which is prepared for return the result, add to exist stats
+		// for each value.  This can happen when a stream, subscription or something else if exists, which transfer to
+		// be handled by another server. If main_key does not already contain in, just append the value col to the
+		// table result.
 		for _, stats := range allStatsRaw {
 			for _, val := range stats.Value {
 				mainKey := val[headers[0]]
@@ -157,9 +166,6 @@ func aggAppendSum(s *Service, c *gin.Context, cmd string) {
 		}
 
 		c.JSON(http.StatusOK, allStats)
-	} else {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
-		return
 	}
 }
 
@@ -170,7 +176,13 @@ func aggSum(s *Service, c *gin.Context, cmd string) {
 		return
 	}
 
-	if len(allStatsRaw) != 0 || len(allStatsRaw[0].Value) != 1 {
+	if len(allStatsRaw) == 0 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
+		return
+	} else if len(allStatsRaw[0].Value) != 1 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("the length value should be 1")))
+		return
+	} else {
 		headerLen := len(allStatsRaw[0].Headers)
 		acc := make([]int, headerLen)
 		for _, stats := range allStatsRaw {
@@ -195,16 +207,6 @@ func aggSum(s *Service, c *gin.Context, cmd string) {
 		tab := model.TableResult{Headers: headers, Value: values}
 
 		c.JSON(http.StatusOK, tab)
-		return
-
-	} else {
-		var err errorno.ErrorResponse
-		if len(allStatsRaw) != 0 {
-			err = adminError(fmt.Errorf("got stats of length 0"))
-		} else if len(allStatsRaw[0].Value) != 1 {
-			err = adminError(fmt.Errorf("the length value should be 1"))
-		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		return
 	}
 }
