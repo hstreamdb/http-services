@@ -22,21 +22,35 @@ func (c *HStreamClient) GetStats(category string, metrics string, intervals []st
 	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, category, metrics, args))
 }
 
-// sendAdminRequest sends an admin command to the server and returns a table format response
+// sendAdminRequest sends an admin command to a random server in the cluster and returns a table format response
 func (c *HStreamClient) sendAdminRequest(cmd string) (*model.TableType, error) {
 	resp, err := c.client.AdminRequest(cmd)
 	if err != nil {
 		return nil, err
 	}
 
+	return c.parseAdminRequest(resp)
+}
+
+// sendAdminRequestToServer sends an admin command to a server in the cluster and returns a table format response
+func (c *HStreamClient) sendAdminRequestToServer(addr, cmd string) (*model.TableType, error) {
+	resp, err := c.client.AdminRequestToServer(addr, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.parseAdminRequest(resp)
+}
+
+func (c *HStreamClient) parseAdminRequest(resp string) (*model.TableType, error) {
 	var jsonObj map[string]json.RawMessage
-	if err = json.Unmarshal([]byte(resp), &jsonObj); err != nil {
+	if err := json.Unmarshal([]byte(resp), &jsonObj); err != nil {
 		return nil, err
 	}
 
 	var tableType model.TableType
 	if content, ok := jsonObj["content"]; ok {
-		if err = json.Unmarshal(content, &tableType); err != nil {
+		if err := json.Unmarshal(content, &tableType); err != nil {
 			return nil, err
 		}
 	} else {

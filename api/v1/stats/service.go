@@ -1,10 +1,8 @@
 package stats
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/hstreamdb/hstreamdb-go/hstream"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/hstreamdb/http-server/pkg/errorno"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 
 type StatsServices interface {
 	GetServerInfo() ([]string, error)
+	GetStatsFromServer(string, string) (*model.TableType, error)
 }
 
 type Service struct {
@@ -67,42 +66,22 @@ func getFromCluster(s *Service, cmd string) ([]model.TableResult, error) {
 
 	allStatsRaw := []model.TableResult{}
 
-	for _, x := range info {
+	for _, addr := range info {
 		err := func() error {
-			client, err := hstream.NewHStreamClient(x)
-			if err != nil {
-				return fmt.Errorf("NewHStreamClient error with %v: %v", x, err)
-			}
-			defer client.Close()
-
-			resp, err := client.AdminRequest(cmd)
+			respTable, err := s.client.GetStatsFromServer(addr, cmd)
 			if err != nil {
 				return fmt.Errorf("AdminRequest error with %v: %v", cmd, err)
 			}
 
-			var jsonObj map[string]json.RawMessage
-			if err := json.Unmarshal([]byte(resp), &jsonObj); err != nil {
-				return fmt.Errorf("unmarshal to RawMessage error: %v", err)
-			}
-
-			var table model.TableType
-			if content, ok := jsonObj["content"]; ok {
-				if err = json.Unmarshal(content, &table); err != nil {
-					return fmt.Errorf("unmarshal to TableType error: %v", err)
-				}
-			} else {
-				return fmt.Errorf("JSON object does not have the `content` field")
-			}
-
 			stats := model.TableResult{
-				Headers: table.Headers,
-				Value:   make([]map[string]string, 0, len(table.Rows)),
+				Headers: respTable.Headers,
+				Value:   make([]map[string]string, 0, len(respTable.Rows)),
 			}
 
-			for _, row := range table.Rows {
+			for _, row := range respTable.Rows {
 				mp := make(map[string]string, len(row))
 				for idx, val := range row {
-					mp[table.Headers[idx]] = val
+					mp[respTable.Headers[idx]] = val
 				}
 				stats.Value = append(stats.Value, mp)
 			}
