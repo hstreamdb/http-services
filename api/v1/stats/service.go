@@ -48,11 +48,11 @@ func (s *Service) GetAppendFailed(c *gin.Context) {
 }
 
 func (s *Service) GetServerAppendRequestLatency(c *gin.Context) {
-	aggAvg(s, c, "server stats histogram append_request_latency")
+	aggAvg(s, c, "server stats server_histogram append_request_latency")
 }
 
 func (s *Service) GetServerAppendLatency(c *gin.Context) {
-	aggAvg(s, c, "server stats histogram append_latency")
+	aggAvg(s, c, "server stats server_histogram append_latency")
 }
 
 func adminError(err error) errorno.ErrorResponse {
