@@ -29,7 +29,7 @@ func (c *HStreamClient) sendAdminRequest(cmd string) (*model.TableType, error) {
 		return nil, err
 	}
 
-	return c.parseAdminRequest(resp)
+	return c.parseAdminResponse(resp)
 }
 
 // sendAdminRequestToServer sends an admin command to a server in the cluster and returns a table format response
@@ -39,10 +39,10 @@ func (c *HStreamClient) sendAdminRequestToServer(addr, cmd string) (*model.Table
 		return nil, err
 	}
 
-	return c.parseAdminRequest(resp)
+	return c.parseAdminResponse(resp)
 }
 
-func (c *HStreamClient) parseAdminRequest(resp string) (*model.TableType, error) {
+func (c *HStreamClient) parseAdminResponse(resp string) (*model.TableType, error) {
 	var jsonObj map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(resp), &jsonObj); err != nil {
 		return nil, err
