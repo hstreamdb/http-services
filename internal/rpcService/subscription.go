@@ -26,5 +26,5 @@ func (c *HStreamClient) ListSubscriptions() ([]model.Subscription, error) {
 }
 
 func (c *HStreamClient) DeleteSubscription(subId string) error {
-	return c.client.DeleteSubscription(subId)
+	return c.client.DeleteSubscription(subId, true)
 }
