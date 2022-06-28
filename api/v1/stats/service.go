@@ -131,7 +131,7 @@ func aggAppendSum(s *Service, c *gin.Context, cmd string) {
 
 				if ok {
 					// Value[ix] has the same main_key with current col which would be appended or summed to table
-					// so for each Value[ix][i], append corresponding val[i]
+					// so for each Value[ix][i], add corresponding val[i]
 					for k := range allStats.Value[ix] {
 						allStats.Value[ix][k] += val[k]
 					}
