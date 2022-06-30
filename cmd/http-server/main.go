@@ -19,7 +19,7 @@ import (
 var (
 	address     = flag.String("address", "localhost:8080", "server's listening address.")
 	servicesUrl = flag.String("services-url", "localhost:6580", "hstreamdb services servicesUrl, split by comma.")
-	logLevel    = flag.String("log-level", "log", "log level, support debug, info, warn, error, fatal, panic")
+	logLevel    = flag.String("log-level", "info", "log level, support debug, info, warn, error, fatal, panic")
 	debugMode   = flag.Bool("debug-mode", false, "use debug mode")
 )
 

@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/hstreamdb/http-server/pkg/errorno"
+	"github.com/hstreamdb/http-server/pkg/util"
 	"net/http"
 	"strconv"
 )
@@ -22,49 +23,97 @@ func NewStatsServices(s StatsServices) *Service {
 	return &Service{s}
 }
 
+// GetAppends godoc
+// @ID streamAppendsStats
+// @Summary Get rate of bytes successfully written to the stream.
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/append/bytes [get]
 func (s *Service) GetAppends(c *gin.Context) {
-	aggAppendSum(s, c, "server stats stream appends")
+	s.aggAppendSum(c, "server stats stream appends")
 }
 
+// GetSends godoc
+// @ID subscriptionSendsStats
+// @Summary Get rate of bytes sent by the server per subscription
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/sends/bytes [get]
 func (s *Service) GetSends(c *gin.Context) {
-	aggAppendSum(s, c, "server stats subscription sends")
+	s.aggAppendSum(c, "server stats subscription sends")
 }
 
+// GetAppendInRecords godoc
+// @ID appendInRecordStats
+// @Summary Get rate of records successfully written to the stream
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/append/records [get]
 func (s *Service) GetAppendInRecords(c *gin.Context) {
-	aggAppendSum(s, c, "server stats stream append_in_record")
+	s.aggAppendSum(c, "server stats stream append_in_record")
 }
 
+// GetSendOutRecords godoc
+// @ID sendOutRecords
+// @Summary Get rate of records successfully sent by the server per subscription
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/send/records [get]
 func (s *Service) GetSendOutRecords(c *gin.Context) {
-	aggAppendSum(s, c, "server stats subscription send_out_records")
+	s.aggAppendSum(c, "server stats subscription send_out_records")
 }
 
+// GetAppendTotal godoc
+// @ID totalAppendStats
+// @Summary Get total number of success append requests of a stream
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/append/success [get]
 func (s *Service) GetAppendTotal(c *gin.Context) {
-	aggAppendSum(s, c, "server stats stream_counter append_total")
+	s.aggAppendSum(c, "server stats stream_counter append_total")
 }
 
+// GetAppendFailed godoc
+// @ID failedAppendStats
+// @Summary Get total number of failed append request of a stream
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/append/failed [get]
 func (s *Service) GetAppendFailed(c *gin.Context) {
-	aggAppendSum(s, c, "server stats stream_counter append_failed")
+	s.aggAppendSum(c, "server stats stream_counter append_failed")
 }
 
+// GetServerAppendRequestLatency godoc
+// @ID appendRequestLatency
+// @Summary Get stream append request latency stats
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/histogram/server_append_request_latency [get]
 func (s *Service) GetServerAppendRequestLatency(c *gin.Context) {
-	aggSum(s, c, "server stats server_histogram append_request_latency")
+	s.aggLatencyHist(c, "server stats server_histogram append_request_latency")
 }
 
+// GetServerAppendLatency godoc
+// @ID appendLatency
+// @Summary Get stream append latency stats
+// @Success 200 {object} model.TableResult
+// @Failure 500 {object} errorno.ErrorResponse
+// @Router /v1/stats/histogram/server_append_latency [get]
 func (s *Service) GetServerAppendLatency(c *gin.Context) {
-	aggSum(s, c, "server stats server_histogram append_latency")
+	s.aggLatencyHist(c, "server stats server_histogram append_latency")
 }
 
 func adminError(err error) errorno.ErrorResponse {
 	return errorno.NewErrorResponse(errorno.ADMIN_GET_STATUS_ERROR, err)
 }
 
-func getFromCluster(s *Service, cmd string) ([]model.TableResult, error) {
+func getFromCluster(s *Service, cmd string) (map[string]*model.TableType, error) {
 	info, err := s.client.GetServerInfo()
 	if err != nil {
 		return nil, fmt.Errorf("GetServerInfo error: %v", err)
 	}
 
-	allStatsRaw := []model.TableResult{}
+	res := make(map[string]*model.TableType, len(info))
 
 	for _, addr := range info {
 		respTable, err := s.client.GetStatsFromServer(addr, cmd)
@@ -72,117 +121,118 @@ func getFromCluster(s *Service, cmd string) ([]model.TableResult, error) {
 			return nil, fmt.Errorf("AdminRequest error with %v: %v", cmd, err)
 		}
 
-		stats := model.TableResult{
-			Headers: respTable.Headers,
-			Value:   make([]map[string]string, 0, len(respTable.Rows)),
-		}
-
-		for _, row := range respTable.Rows {
-			mp := make(map[string]string, len(row))
-			for idx, val := range row {
-				mp[respTable.Headers[idx]] = val
-			}
-			stats.Value = append(stats.Value, mp)
-		}
-
-		allStatsRaw = append(allStatsRaw, stats)
+		res[addr] = respTable
 	}
-
-	return allStatsRaw, nil
+	return res, nil
 }
 
-func aggAppendSum(s *Service, c *gin.Context, cmd string) {
-	allStatsRaw, err := getFromCluster(s, cmd)
+func (s *Service) aggAppendSum(c *gin.Context, cmd string) {
+	records, err := getFromCluster(s, cmd)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(err))
 		return
 	}
-
-	if len(allStatsRaw) == 0 {
+	if len(records) == 0 {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
 		return
-	} else {
-		headers := allStatsRaw[0].Headers
-
-		allStats := model.TableResult{
-			Headers: headers,
-			Value:   []map[string]string{},
-		}
-
-		// The `allStatsRaw` contains stats tables that got from the cluster per server, which each is of the form:
-		// | main_key | type_0 stats | type_1 stats | ...
-		// If the main_key already contains in the container which is prepared for return the result, add to exist stats
-		// for each value.  This can happen when a stream, subscription or something else if exists, which transfer to
-		// be handled by another server. If main_key does not already contain in, just append the value col to the
-		// table result.
-		for _, stats := range allStatsRaw {
-			for _, val := range stats.Value {
-				mainKey := val[headers[0]]
-
-				ok := false
-				ix := -1
-				for i, cur := range allStats.Value {
-					if cur[mainKey] == val[mainKey] {
-						ok = true
-						ix = i
-						break
-					}
-				}
-
-				if ok {
-					// Value[ix] has the same main_key with current col which would be appended or summed to table
-					// so for each Value[ix][i], add corresponding val[i]
-					for k := range allStats.Value[ix] {
-						allStats.Value[ix][k] += val[k]
-					}
-				} else {
-					allStats.Value = append(allStats.Value, val)
-				}
-			}
-		}
-
-		c.JSON(http.StatusOK, allStats)
 	}
-}
 
-func aggSum(s *Service, c *gin.Context, cmd string) {
-	allStatsRaw, err := getFromCluster(s, cmd)
+	dataVec := make([]*model.TableType, 0, len(records))
+	for _, v := range records {
+		dataVec = append(dataVec, v)
+	}
+
+	res, err := sum(dataVec)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(err))
 		return
 	}
+	c.JSON(http.StatusOK, *res)
+}
 
-	if len(allStatsRaw) == 0 {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
-		return
-	} else if len(allStatsRaw[0].Value) != 1 {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("the length value should be 1")))
-		return
-	} else {
-		headerLen := len(allStatsRaw[0].Headers)
-		acc := make([]int, headerLen)
-		for _, stats := range allStatsRaw {
-			for _, val := range stats.Value {
-				for i, k := range stats.Headers {
-					val, err := strconv.ParseInt(val[k], 10, 32)
-					if err != nil {
-						c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("%v", err)))
-						return
-					}
-					acc[i] += int(val)
-				}
-			}
-		}
-
-		headers := allStatsRaw[0].Headers
-		value := map[string]string{}
-		for i, header := range headers {
-			value[header] = fmt.Sprintf("%d", acc[i])
-		}
-		values := []map[string]string{value}
-		tab := model.TableResult{Headers: headers, Value: values}
-
-		c.JSON(http.StatusOK, tab)
+func (s *Service) aggLatencyHist(c *gin.Context, cmd string) {
+	records, err := getFromCluster(s, cmd)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(err))
 		return
 	}
+	if len(records) == 0 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(fmt.Errorf("got stats of length 0")))
+		return
+	}
+
+	var headers []string
+	setHeader := false
+	values := make([]map[string]string, 0, len(records))
+	for addr, table := range records {
+		if !setHeader {
+			headers = make([]string, len(table.Headers)+1)
+			headers[0] = "server-address"
+			copy(headers[1:], table.Headers)
+			setHeader = true
+			util.Logger().Debug(fmt.Sprintf("headers = %s", headers))
+		}
+
+		mp := make(map[string]string, len(table.Headers)+1)
+		for _, rows := range table.Rows {
+			for idx := 0; idx < len(rows); idx++ {
+				mp[headers[idx+1]] = rows[idx]
+			}
+			mp[headers[0]] = addr
+		}
+		values = append(values, mp)
+		util.Logger().Debug(fmt.Sprintf("%+v", mp))
+	}
+
+	res := model.TableResult{
+		Headers: headers,
+		Value:   values,
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+func sum(records []*model.TableType) (*model.TableResult, error) {
+	headers := records[0].Headers
+	// statistics: {resource: {metrics1: value1, metrics2: value2}}
+	statistics := map[string]map[string]int64{}
+	dataSize := len(records[0].Headers) - 1
+	for _, table := range records {
+		// e.g. table.Rows[0]
+		// |stream_name|appends_1min|appends_5min|appends_10min|  <- headers
+		// |    s1     |      0     |    1829    |    1829     |  <- row0
+		// |    s2     |      0     |    7270    |    7270     |  <- row1
+		for _, rows := range table.Rows {
+			target := rows[0]
+			if _, ok := statistics[target]; !ok {
+				statistics[target] = make(map[string]int64, dataSize)
+			}
+
+			for idx := 1; idx <= dataSize; idx++ {
+				value, err := strconv.ParseInt(rows[idx], 10, 64)
+				if err != nil {
+					return nil, err
+				}
+				statistics[target][headers[idx]] += value
+			}
+			util.Logger().Debug(fmt.Sprintf("[%s] = %s, val: %+v", headers[0], target, rows))
+		}
+	}
+
+	// construct result
+	rows := []map[string]string{}
+	for resource, metricsMp := range statistics {
+		res := map[string]string{}
+		res[headers[0]] = resource
+		for metrics, v := range metricsMp {
+			res[metrics] = strconv.FormatInt(v, 10)
+		}
+		rows = append(rows, res)
+	}
+
+	allStats := model.TableResult{
+		Headers: headers,
+		Value:   rows,
+	}
+	util.Logger().Debug(fmt.Sprintf("res = %+v", statistics))
+	return &allStats, nil
 }

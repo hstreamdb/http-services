@@ -77,6 +77,166 @@
                 }
             }
         },
+        "/v1/stats/append/bytes": {
+            "get": {
+                "summary": "Get rate of bytes successfully written to the stream.",
+                "operationId": "streamAppendsStats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/append/failed": {
+            "get": {
+                "summary": "Get total number of failed append request of a stream",
+                "operationId": "failedAppendStats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/append/records": {
+            "get": {
+                "summary": "Get rate of records successfully written to the stream",
+                "operationId": "appendInRecordStats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/append/success": {
+            "get": {
+                "summary": "Get total number of success append requests of a stream",
+                "operationId": "totalAppendStats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/histogram/server_append_latency": {
+            "get": {
+                "summary": "Get stream append latency stats",
+                "operationId": "appendLatency",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/histogram/server_append_request_latency": {
+            "get": {
+                "summary": "Get stream append request latency stats",
+                "operationId": "appendRequestLatency",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/send/records": {
+            "get": {
+                "summary": "Get rate of records successfully sent by the server per subscription",
+                "operationId": "sendOutRecords",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/sends/bytes": {
+            "get": {
+                "summary": "Get rate of bytes sent by the server per subscription",
+                "operationId": "subscriptionSendsStats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TableResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorno.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/streams/": {
             "get": {
                 "summary": "List all streams in the cluster",
