@@ -1,10 +1,4 @@
-FROM ubuntu:focal as builder
-
-RUN apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get install -y \
-      build-essential autoconf libtool libssl-dev pkg-config ca-certificates \
-      golang-1.16-go && \
-    ln -s /usr/lib/go-1.16/bin/go /usr/bin/go && \
-    ln -s /usr/lib/go-1.16/bin/gofmt /usr/bin/gofmt
+FROM golang:1.18 as builder
 
 COPY . /srv
 
