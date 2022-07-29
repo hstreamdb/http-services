@@ -1,9 +1,8 @@
 # http-services
 
-HStreamDB's http-related services. Including.
+HStreamDB's http-related services. Including:
 
 - [http server](#http-server)
-- [admin client](#admin-client)
 
 ## Installation
 
@@ -35,18 +34,3 @@ The http server of HStreamDB provides the relevant api for accessing the HStream
 
 - `make swag`
 - Then you can start the server and go to http://localhost:8080/v1/swagger/index.html to see your Swagger UI.
-
-## ADMIN CLIENT
-
-`adminCtl` is the command line tool for managing `HStream-server` cluster.
-
-Currently, user can use `adminCtl` to：
-
-- create/list all streams
-- create/list all subscriptions
-- get server status
-- get cluster metrics statistics
-
-### USAGE
-
-- `./bin/adminCtl -h` to get more info.
