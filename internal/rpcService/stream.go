@@ -2,6 +2,7 @@ package rpcService
 
 import (
 	"github.com/hstreamdb/hstreamdb-go/hstream"
+	"github.com/hstreamdb/hstreamdb-go/hstream/Record"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/hstreamdb/http-server/pkg/util"
 	"go.uber.org/zap"
@@ -10,7 +11,8 @@ import (
 func (c *HStreamClient) CreateStream(stream model.Stream) error {
 	return c.client.CreateStream(stream.StreamName,
 		hstream.WithReplicationFactor(stream.ReplicationFactor),
-		hstream.EnableBacklog(stream.BacklogDuration))
+		hstream.EnableBacklog(stream.BacklogDuration),
+		hstream.WithShardCount(stream.ShardCount))
 }
 
 func (c *HStreamClient) ListStreams() ([]model.Stream, error) {
@@ -34,13 +36,16 @@ func (c *HStreamClient) DeleteStream(streamName string) error {
 }
 
 func (c *HStreamClient) Append(streamName string, record model.Record) (rid model.RecordId, err error) {
-	producer := c.client.NewProducer(streamName)
-	var r *hstream.HStreamRecord
+	producer, err := c.client.NewProducer(streamName)
+	if err != nil {
+		return model.RecordId{}, err
+	}
+	var r Record.HStreamRecord
 	switch record.Type {
 	case "RAW":
-		r, err = hstream.NewHStreamRawRecord(record.Key, []byte(record.Data.(string)))
+		r, err = Record.NewHStreamRawRecord(record.Key, []byte(record.Data.(string)))
 	case "HRECORD":
-		r, err = hstream.NewHStreamHRecord(record.Key, record.Data.(map[string]interface{}))
+		r, err = Record.NewHStreamHRecord(record.Key, record.Data.(map[string]interface{}))
 	}
 	if err != nil {
 		util.Logger().Error("Error creating record: %v", zap.Error(err))
@@ -55,7 +60,7 @@ func (c *HStreamClient) Append(streamName string, record model.Record) (rid mode
 	return recordIdFromHStream(res), nil
 }
 
-func recordIdFromHStream(rid hstream.RecordId) model.RecordId {
+func recordIdFromHStream(rid Record.RecordId) model.RecordId {
 	return model.RecordId{
 		BatchId:    rid.BatchId,
 		BatchIndex: rid.BatchIndex,

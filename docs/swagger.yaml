@@ -42,6 +42,8 @@ definitions:
         type: integer
       replication_factor:
         type: integer
+      shard_count:
+        type: integer
       stream_name:
         type: string
     required:
@@ -53,6 +55,11 @@ definitions:
         type: integer
       max_unacked_records:
         type: integer
+      offset:
+        enum:
+        - EARLIEST
+        - LATEST
+        type: string
       stream_name:
         type: string
       subscription_id:
