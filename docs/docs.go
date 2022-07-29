@@ -598,6 +598,9 @@ const docTemplate = `{
                 "replication_factor": {
                     "type": "integer"
                 },
+                "shard_count": {
+                    "type": "integer"
+                },
                 "stream_name": {
                     "type": "string"
                 }
@@ -615,6 +618,13 @@ const docTemplate = `{
                 },
                 "max_unacked_records": {
                     "type": "integer"
+                },
+                "offset": {
+                    "type": "string",
+                    "enum": [
+                        "EARLIEST",
+                        "LATEST"
+                    ]
                 },
                 "stream_name": {
                     "type": "string"

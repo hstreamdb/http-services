@@ -4,6 +4,7 @@ type Stream struct {
 	StreamName        string `json:"stream_name" binding:"required"`
 	ReplicationFactor uint32 `json:"replication_factor"`
 	BacklogDuration   uint32 `json:"backlog_duration"`
+	ShardCount        uint32 `json:"shard_count"`
 }
 
 type Subscription struct {
@@ -11,6 +12,7 @@ type Subscription struct {
 	StreamName        string `json:"stream_name" binding:"required"`
 	AckTimeoutSeconds int32  `json:"ack_timeout_seconds"`
 	MaxUnackedRecords int32  `json:"max_unacked_records"`
+	Offset            string `json:"offset" enums:"EARLIEST,LATEST"`
 }
 
 type Record struct {
