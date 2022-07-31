@@ -10,6 +10,7 @@ import (
 type AdminServices interface {
 	GetStatus() (*model.TableType, error)
 	GetStats(string, string, []string) (*model.TableType, error)
+	GetStatsFromAddr(string, string, string, []string) (*model.TableType, error)
 }
 
 type Service struct {
@@ -60,8 +61,18 @@ func (s *Service) GetStatus(c *gin.Context) {
 func (s *Service) GetStats(c *gin.Context) {
 	category := c.Query("category")
 	metrics := c.Query("metrics")
-	interval := c.QueryArray("interval")
-	resp, err := s.client.GetStats(category, metrics, interval)
+	intervals := c.QueryArray("interval")
+	addr := c.Query("addr")
+
+	var resp *model.TableType
+	var err error
+	if addr != "" {
+		resp, err = s.client.GetStatsFromAddr(addr, category, metrics, intervals)
+
+	} else {
+		resp, err = s.client.GetStats(category, metrics, intervals)
+	}
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorno.NewErrorResponse(errorno.ADMIN_GET_STATUS_ERROR, err))
 		return
