@@ -18,6 +18,17 @@ HStreamDB's http-related services. Including:
 
   then you can find the binary in `{project_dir}/bin`
 
+## Quickstart with Docker
+
+- You can use the [HStream image](https://hub.docker.com/r/hstreamdb/hstream)
+```sh
+docker run -td --network host \
+--name hstream-http-server hstreamdb/hstream:v0.9.0 \
+hstream-http-server -address "localhost:8080" -log-level "info" -services-url "localhost:6580"
+```
+
+- Or use the standalone image `docker pull ghcr.io/hstreamdb/http-services:latest`
+
 ## HTTP SERVER
 
 The http server of HStreamDB provides the relevant api for accessing the HStreamDB service through http requests.
