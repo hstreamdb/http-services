@@ -12,7 +12,6 @@ type ServiceClient interface {
 	stream.StreamServices
 	subscription.SubServices
 	admin.AdminServices
-	//stats.StatsServices
 }
 
 func InitRouter(client ServiceClient) *gin.Engine {
@@ -26,10 +25,8 @@ func InitRouter(client ServiceClient) *gin.Engine {
 	streamService := stream.NewStreamService(client)
 	subServices := subscription.NewSubService(client)
 	adminServices := admin.NewAdminService(client)
-	//statsServices := stats.NewStatsServices(client)
 	stream.RegisterRouter(v1, streamService)
 	subscription.RegisterRouter(v1, subServices)
 	admin.RegisterRouter(v1, adminServices)
-	//stats.RegisterRouter(v1, statsServices)
 	return router
 }

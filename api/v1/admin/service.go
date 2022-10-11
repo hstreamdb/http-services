@@ -111,11 +111,13 @@ func (s *Service) aggAppendSum(c *gin.Context, category, metrics, intervals stri
 	}
 
 	dataVec := make([]*model.TableType, 0, len(records))
-	for _, v := range records {
+	servers := make([]string, 0, len(records))
+	for addr, v := range records {
 		dataVec = append(dataVec, v)
+		servers = append(servers, addr)
 	}
 
-	res, err := sum(dataVec)
+	res, err := sum(dataVec, servers)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, adminError(err))
 		return
@@ -140,7 +142,7 @@ func (s *Service) aggLatencyHist(c *gin.Context, category, metrics, intervals st
 	for addr, table := range records {
 		if !setHeader {
 			headers = make([]string, len(table.Headers)+1)
-			headers[0] = "server-address"
+			headers[0] = "server_host"
 			copy(headers[1:], table.Headers)
 			setHeader = true
 			util.Logger().Debug(fmt.Sprintf("headers = %s", headers))
@@ -151,7 +153,8 @@ func (s *Service) aggLatencyHist(c *gin.Context, category, metrics, intervals st
 			for idx := 0; idx < len(rows); idx++ {
 				mp[headers[idx+1]] = rows[idx]
 			}
-			mp[headers[0]] = addr
+			host := strings.Split(addr, ":")[0]
+			mp[headers[0]] = host
 		}
 		values = append(values, mp)
 		util.Logger().Debug(fmt.Sprintf("%+v", mp))
@@ -164,12 +167,14 @@ func (s *Service) aggLatencyHist(c *gin.Context, category, metrics, intervals st
 	c.JSON(http.StatusOK, res)
 }
 
-func sum(records []*model.TableType) (*model.TableResult, error) {
+func sum(records []*model.TableType, servers []string) (*model.TableResult, error) {
 	headers := records[0].Headers
 	// statistics: {resource: {metrics1: value1, metrics2: value2}}
 	statistics := map[string]map[string]int64{}
 	dataSize := len(records[0].Headers) - 1
-	for _, table := range records {
+	resourceOriginMp := map[string]string{}
+	for i, table := range records {
+		serverUrl := strings.Split(servers[i], ":")[0]
 		// e.g. table.Rows[0]
 		// |stream_name|appends_1min|appends_5min|appends_10min|  <- headers
 		// |    s1     |      0     |    1829    |    1829     |  <- row0
@@ -178,6 +183,7 @@ func sum(records []*model.TableType) (*model.TableResult, error) {
 			target := rows[0]
 			if _, ok := statistics[target]; !ok {
 				statistics[target] = make(map[string]int64, dataSize)
+				resourceOriginMp[target] = serverUrl
 			}
 
 			for idx := 1; idx <= dataSize; idx++ {
@@ -187,7 +193,6 @@ func sum(records []*model.TableType) (*model.TableResult, error) {
 				}
 				statistics[target][headers[idx]] += value
 			}
-			util.Logger().Debug(fmt.Sprintf("[%s] = %s, val: %+v", headers[0], target, rows))
 		}
 	}
 
@@ -199,9 +204,11 @@ func sum(records []*model.TableType) (*model.TableResult, error) {
 		for metrics, v := range metricsMp {
 			res[metrics] = strconv.FormatInt(v, 10)
 		}
+		res["server_host"] = resourceOriginMp[resource]
 		rows = append(rows, res)
 	}
 
+	headers = append([]string{"server_host"}, headers...)
 	allStats := model.TableResult{
 		Headers: headers,
 		Value:   rows,
