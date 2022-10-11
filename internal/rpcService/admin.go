@@ -5,21 +5,23 @@ import (
 	"fmt"
 	"github.com/hstreamdb/http-server/api/model"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 const (
 	getStatusCmd = "server status"
-	getStatsCmd  = "server stats %s %s%s"
+	getStatsCmd  = "server stats %s %s %s"
 )
+
+func (c *HStreamClient) GetServerInfo() ([]string, error) {
+	return c.client.GetServerInfo()
+}
 
 func (c *HStreamClient) GetStatus() (*model.TableType, error) {
 	return c.sendAdminRequest(getStatusCmd)
 }
 
-func (c *HStreamClient) GetStats(category string, metrics string, intervals []string) (*model.TableType, error) {
-	args := strings.Join(append([]string{""}, intervals...), " -i ")
-	return c.sendAdminRequest(fmt.Sprintf(getStatsCmd, category, metrics, args))
+func (c *HStreamClient) GetStats(addr, category, metrics, intervals string) (*model.TableType, error) {
+	return c.sendAdminRequestToServer(addr, fmt.Sprintf(getStatsCmd, category, metrics, intervals))
 }
 
 // sendAdminRequest sends an admin command to a random server in the cluster and returns a table format response
