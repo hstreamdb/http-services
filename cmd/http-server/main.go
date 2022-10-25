@@ -5,7 +5,6 @@ import (
 	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/hstreamdb/http-server/api"
-	"github.com/hstreamdb/http-server/config"
 	"github.com/hstreamdb/http-server/internal/rpcService"
 	"github.com/hstreamdb/http-server/pkg/util"
 	"go.uber.org/zap"
@@ -23,7 +22,7 @@ var (
 	clientCa    = flag.String("client-ca", "", "ca path for hstream-server")
 	clientCert  = flag.String("client-cert", "", "client cert path for hstream-server")
 	clientKey   = flag.String("client-key", "", "client key path for hstream-server")
-	debugMode   = flag.Bool("debug-mode", true, "use debug mode")
+	debugMode   = flag.Bool("debug-mode", false, "use debug mode")
 )
 
 // @title HStreamDB-Server API
@@ -33,10 +32,10 @@ var (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	flag.Parse()
-	conf := config.NewConfig(*servicesUrl, *logLevel)
+	util.InitLogger(*logLevel)
 	ctx := registerSignalHandler()
 
-	client, err := rpcService.NewHStreamClient(conf.ServerUrl, *clientCa, *clientCert, *clientKey)
+	client, err := rpcService.NewHStreamClient(*servicesUrl, *clientCa, *clientCert, *clientKey)
 	if err != nil {
 		util.Logger().Fatal("failed to connect to hstreamdb", zap.Error(err))
 	}
