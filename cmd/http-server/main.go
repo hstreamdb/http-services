@@ -20,6 +20,9 @@ var (
 	address     = flag.String("address", "localhost:8080", "server's listening address.")
 	servicesUrl = flag.String("services-url", "localhost:6580", "hstreamdb services servicesUrl, split by comma.")
 	logLevel    = flag.String("log-level", "info", "log level, support debug, info, warn, error, fatal, panic")
+	clientCa    = flag.String("client-ca", "", "ca path for hstream-server")
+	clientCert  = flag.String("client-cert", "", "client cert path for hstream-server")
+	clientKey   = flag.String("client-key", "", "client key path for hstream-server")
 	debugMode   = flag.Bool("debug-mode", true, "use debug mode")
 )
 
@@ -33,7 +36,7 @@ func main() {
 	conf := config.NewConfig(*servicesUrl, *logLevel)
 	ctx := registerSignalHandler()
 
-	client, err := rpcService.NewHStreamClient(conf.ServerUrl)
+	client, err := rpcService.NewHStreamClient(conf.ServerUrl, *clientCa, *clientCert, *clientKey)
 	if err != nil {
 		util.Logger().Fatal("failed to connect to hstreamdb", zap.Error(err))
 	}
@@ -53,10 +56,10 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		if err := server.ListenAndServe(); err != nil {
 			util.Logger().Error("Server error", zap.Error(err))
 		}
-		wg.Done()
 	}()
 
 	<-ctx.Done()
