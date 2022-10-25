@@ -3,29 +3,41 @@ package util
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"strings"
 	"sync/atomic"
 )
 
 var globalLogger atomic.Value
 
-type LogLevel = zapcore.Level
-
-const (
-	PANIC   LogLevel = zapcore.PanicLevel
-	FATAL   LogLevel = zapcore.FatalLevel
-	ERROR   LogLevel = zapcore.ErrorLevel
-	WARNING LogLevel = zapcore.WarnLevel
-	INFO    LogLevel = zapcore.InfoLevel
-	DEBUG   LogLevel = zapcore.DebugLevel
-)
-
-func init() {
-	logger, _ := InitLogger(DEBUG)
-	ReplaceGlobals(logger)
+func newLogLevel(s string) zapcore.Level {
+	s = strings.ToUpper(s)
+	var level zapcore.Level
+	switch s {
+	case "PANIC":
+		level = zapcore.PanicLevel
+	case "FATAL":
+		level = zapcore.FatalLevel
+	case "ERROR":
+		level = zapcore.ErrorLevel
+	case "WARNING":
+		level = zapcore.WarnLevel
+	case "INFO":
+		level = zapcore.InfoLevel
+	case "DEBUG":
+		level = zapcore.DebugLevel
+	default:
+		level = zapcore.InvalidLevel
+	}
+	return level
 }
 
 // InitLogger initializes a zap logger.
-func InitLogger(level LogLevel, opts ...zap.Option) (*zap.Logger, error) {
+func InitLogger(level string) {
+	logger, _ := initLogger(newLogLevel(level))
+	ReplaceGlobals(logger)
+}
+
+func initLogger(level zapcore.Level, opts ...zap.Option) (*zap.Logger, error) {
 	stdOut, _, err := zap.Open([]string{"stdout"}...)
 	if err != nil {
 		return nil, err

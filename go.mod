@@ -4,13 +4,13 @@ go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/hstreamdb/hstreamdb-go v0.1.5-0.20221025012301-66651093af55
+	github.com/hstreamdb/hstreamdb-go v0.1.5-0.20221025035829-30dcb8e09a84
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.1
 	github.com/swaggo/swag v1.8.1
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.23.0
 )
 
 require (
