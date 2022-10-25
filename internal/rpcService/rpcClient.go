@@ -12,8 +12,12 @@ type HStreamClient struct {
 	clusterInfo string
 }
 
-func NewHStreamClient(clusterInfo string) (*HStreamClient, error) {
-	client, err := hstream.NewHStreamClient(clusterInfo)
+func NewHStreamClient(clusterInfo, ca, cert, key string) (*HStreamClient, error) {
+	client, err := hstream.NewHStreamClient(clusterInfo,
+		hstream.WithCaCert(ca),
+		hstream.WithClientCert(cert),
+		hstream.WithClientKey(key),
+	)
 	if err != nil {
 		util.Logger().Error("failed to create hstream client", zap.Error(err))
 		return nil, err
